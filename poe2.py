@@ -10,7 +10,6 @@ LEAGUE = "Standard"
 DATA_URL = f"https://poe.ninja/api/data/currencyoverview?league={LEAGUE}&type=Currency&language=en"
 ICON_DIR = "icons" 
 
-# 核心翻译映射
 NAME_MAP = {
     "Mirror of Kalandra": "卡兰德的魔镜",
     "Divine Orb": "神圣石",
@@ -22,54 +21,37 @@ NAME_MAP = {
     "Reflecting Mist": "反射迷雾",
 }
 
-# ================= 1. 图标全自动修复引擎 =================
 def ensure_icon(en_name, remote_url):
-    """如果本地没有图标，则下载并压缩"""
     if not os.path.exists(ICON_DIR):
         os.makedirs(ICON_DIR)
-    
     safe_name = en_name.replace(" ", "_").replace("'", "").replace(":", "")
     local_path = f"{ICON_DIR}/{safe_name}.png"
-    
-    # 如果文件已存在，直接返回路径
     if os.path.exists(local_path):
         return local_path
-
-    # 如果不存在，启动静默下载与压缩
-    print(f"正在自动修复图标: {en_name}...")
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         r = requests.get(remote_url, headers=headers, timeout=10)
         if r.status_code == 200:
             img = Image.open(io.BytesIO(r.content))
-            # 统一缩小到 64x64 节省空间，并开启优化压缩
             img = img.resize((64, 64), Image.Resampling.LANCZOS)
             img.save(local_path, "PNG", optimize=True)
             return local_path
-    except Exception as e:
-        print(f"图标下载失败 {en_name}: {e}")
-    
+    except: pass
     return "https://web.poecdn.com/gen/image/CurrencyDuplicate.png"
 
-# ================= 2. SEO 动态评论引擎 =================
 def generate_market_insight(div_price, mirror_price):
-    openings = ["As we analyze the current PoE 2 economic trajectory,", "The latest exchange data highlights a shift in liquidity,", "Market observers are monitoring the currency pulse today,"]
-    sentiment = f"Divine Orbs are holding steady at {div_price} Chaos," if div_price > 100 else "The market is finding a new floor,"
-    details = [f"while Mirror of Kalandra maintains its status as a premier asset at {mirror_price:,.0f} Chaos.", "with a slight increase in high-end crafting currency demand."]
-    forecasts = ["Expect micro-volatility during weekend peak hours.", "Long-term holders are maintaining stable positions."]
-    
-    paragraph = f"{random.choice(openings)} {sentiment} {random.choice(details)} {random.choice(forecasts)}"
-    return f"{paragraph}<br><br><strong>Tags:</strong> PoE 2 Trade, Divine Price, Mirror Rate, Economy Analysis."
+    openings = ["Market observers report", "Today's financial metrics suggest", "Based on liquidity flows"]
+    sentiment = f"Divine Orbs are currently trading at {div_price} Chaos."
+    details = f"The Mirror of Kalandra remains the premium asset with a valuation of {mirror_price:,.0f} Chaos."
+    paragraph = f"{random.choice(openings)} {sentiment} {details} Focus on long-term value assets during this cycle."
+    return f"{paragraph}<br><br><strong>Tags:</strong> PoE 2 Economy, Divine Price, Mirror Rate."
 
-# ================= 3. 主构建程序 =================
 def build_pro_site():
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         r = requests.get(DATA_URL, headers=headers, timeout=15)
         data = r.json()
-    except Exception as e:
-        print(f"数据抓取失败: {e}")
-        return
+    except: return
 
     lines = data.get('lines', [])
     divine_price = next((item['chaosEquivalent'] for item in lines if item['currencyTypeName'] == 'Divine Orb'), 1)
@@ -82,45 +64,38 @@ def build_pro_site():
         en_name = item.get('currencyTypeName')
         zh_name = NAME_MAP.get(en_name, en_name)
         price = item.get('chaosEquivalent', 0)
-        # 获取官方图标 URL (poe.ninja 提供)
-        remote_icon_url = item.get('detailsId', '').replace('-', '_') # 简单逻辑，如果接口有icon字段更好
-        # 这里使用 poe.ninja 接口自带的图标 URL (如果字段存在)
-        icon_url_from_api = item.get('icon') or "https://web.poecdn.com/gen/image/CurrencyDuplicate.png"
-        
-        # 自动修复本地图标
-        local_icon_path = ensure_icon(en_name, icon_url_from_api)
+        icon_url = item.get('icon') or "https://web.poecdn.com/gen/image/CurrencyDuplicate.png"
+        local_icon = ensure_icon(en_name, icon_url)
 
-        # 趋势与建议 (模拟逻辑)
         trend_val = random.uniform(-1.2, 1.5) 
         trend_class = "trend-up" if trend_val > 0 else "trend-down"
-        advice = "建议买入" if trend_val > 1.0 else ("持有")
+        advice = "建议买入" if trend_val > 1.0 else "持有"
 
         if price < 0.1: continue
 
-        # UI 结构：数值+单位第一行，涨幅+建议第二行
         rows_html += f"""
         <div class="wise-row">
             <div class="wise-col">
-                <div class="icon-wrapper"><img src="{local_icon_path}" class="wise-icon"></div>
+                <div class="icon-wrapper"><img src="{local_icon}" class="wise-icon"></div>
                 <div class="wise-name">{zh_name}<small>{en_name}</small></div>
             </div>
             <div class="wise-col align-right">
-                <div class="price-line">
-                    <span class="wise-value">{price:,.1f}</span>
-                    <span class="wise-unit">混沌石 (CHAOS)</span>
-                </div>
-                <div class="status-line">
-                    <span class="trend {trend_class}">{trend_val:+.1f}%</span>
-                    <span class="wise-label">{advice}</span>
-                </div>
+                <div class="price-line"><span class="wise-value">{price:,.1f}</span><span class="wise-unit">混沌石 (CHAOS)</span></div>
+                <div class="status-line"><span class="trend {trend_class}">{trend_val:+.1f}%</span><span class="wise-label">{advice}</span></div>
             </div>
         </div>
         """
+        # --- 重新加入广告位预留 ---
+        if i == 4:
+            rows_html += """
+            <div style="background: #f1f5f9; border: 1px dashed #cbd5e1; color: #94a3b8; text-align: center; padding: 20px; font-size: 11px; border-radius: 8px; margin: 15px 0;">
+                【列表中间原生广告：高点击率位置】
+            </div>
+            """
 
     update_time = datetime.now().strftime("%Y-%m-%d %H:%M")
     insight_content = generate_market_insight(divine_price, mirror_price)
 
-    # ---------------- HTML 模板 (CSS 与前版对齐) ----------------
     full_html = f"""
     <!DOCTYPE html>
     <html lang="zh-CN">
@@ -160,6 +135,7 @@ def build_pro_site():
     <body>
         <div class="nav"><a href="#" class="logo">POE2<span style="color:var(--green)">WISE</span> PRO</a></div>
         <div class="container" style="max-width:600px; margin:auto; padding:0 20px;">
+            <div style="background: #f1f5f9; border: 1px dashed #cbd5e1; color: #94a3b8; text-align: center; padding: 20px; font-size: 11px; border-radius: 8px; margin: 15px 0;">【顶部自适应广告：推荐展示位置】</div>
             <div class="calc-card">
                 <h3 style="margin:0; font-size:18px;">资产一键清仓</h3>
                 <div class="calc-grid">
@@ -175,6 +151,7 @@ def build_pro_site():
             <div class="seo-box">
                 <h4 style="margin:0 0 10px; color:var(--navy);">Market Analysis</h4>
                 <div class="seo-content">{insight_content}</div>
+                <div style="background: #f1f5f9; border: 1px dashed #cbd5e1; color: #94a3b8; text-align: center; padding: 20px; font-size: 11px; border-radius: 8px; margin-top: 20px;">【底部内容匹配广告】</div>
             </div>
         </div>
         <script>
@@ -191,7 +168,6 @@ def build_pro_site():
     """
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(full_html)
-    print("网页构建完成，图标已同步检查。")
 
 if __name__ == "__main__":
     build_pro_site()
