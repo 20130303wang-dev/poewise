@@ -30,6 +30,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Auto update" || echo "No changes"
+          git add .  # 这一步非常重要，它会把下载的图标也加进去
+          git commit -m "Auto update: icons and data" || echo "No changes"
           git push
