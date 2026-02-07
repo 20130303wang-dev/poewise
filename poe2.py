@@ -66,23 +66,30 @@ def ensure_icon(en_name, remote_url):
     return "https://web.poecdn.com/gen/image/CurrencyDuplicate.png"
 
 def generate_market_insight(div_price, mirror_price):
-    openings = ["Market analysis suggests", "Current economic telemetry shows", "Latest trade data indicates"]
-    sentiment = f"Divine Orbs are trading at {div_price} Chaos,"
-    details = f"while Mirror of Kalandra holds premium value at {mirror_price:,.0f} Chaos."
-    advice = random.choice(["Watch for liquidity shifts.", "Consider long-term asset holding.", "Market volatility is low."])
+    openings = ["Current market telemetry indicates", "Analysis of PoE 2 trade patterns suggests", "The latest liquidity assessment shows"]
+    sentiment = f"Divine Orbs are maintaining stability at {div_price} Chaos,"
+    details = f"while Mirror of Kalandra continues to be the dominant high-end asset at {mirror_price:,.0f} Chaos."
+    advice = random.choice(["Investors should monitor volatility.", "Holding assets might be viable.", "Market liquidity remains healthy."])
     paragraph = f"{random.choice(openings)} {sentiment} {details} {advice}"
-    return f"{paragraph}<br><br><strong>Keywords:</strong> PoE 2 Trade, Divine Price, Mirror Rate, Economy Analysis."
+    return f"{paragraph}<br><br><strong>Keywords:</strong> Path of Exile 2 Economy, PoE 2 Currency Exchange, Divine to Chaos Rate."
 
 def build_pro_site():
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         r = requests.get(DATA_URL, headers=headers, timeout=15)
         data = r.json()
-    except: return
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        return
 
     lines = data.get('lines', [])
     divine_price = next((item['chaosEquivalent'] for item in lines if item['currencyTypeName'] == 'Divine Orb'), 1)
     mirror_price = next((item['chaosEquivalent'] for item in lines if item['currencyTypeName'] == 'Mirror of Kalandra'), 0)
+
+    # 先定义所有的变量，防止 NameError
+    update_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+    insight_content = generate_market_insight(divine_price, mirror_price)
+    board_header = f'Live Market Board <span style="font-weight:400; font-size:10px; opacity:0.7;">(实时行情看板)</span> <span style="float:right">Last Sync <span style="font-weight:400;">(最后同步)</span>: {update_time}</span>'
 
     rows_html = ""
     sorted_lines = sorted(lines, key=lambda x: x.get('chaosEquivalent', 0), reverse=True)
@@ -96,7 +103,7 @@ def build_pro_site():
 
         trend_val = random.uniform(-1.2, 1.5) 
         trend_class = "trend-up" if trend_val > 0 else "trend-down"
-        advice = "建议买入" if trend_val > 1.0 else "持有"
+        advice = "BUY" if trend_val > 1.0 else "HOLD"
 
         if price < 0.1: continue
 
@@ -105,14 +112,14 @@ def build_pro_site():
             <div class="wise-col">
                 <div class="icon-wrapper"><img src="{local_icon}" class="wise-icon"></div>
                 <div class="wise-name">
-                    <span>{zh_name}</span>
-                    <small style="display:block; font-size:10px; color:#5d7079; font-weight:400;">{en_name}</small>
+                    <span>{en_name}</span>
+                    <small style="display:block; font-size:11px; color:#5d7079; font-weight:400;">{zh_name}</small>
                 </div>
             </div>
             <div class="wise-col align-right">
                 <div class="price-line">
                     <span class="wise-value">{price:,.1f}</span>
-                    <span class="wise-unit">混沌石 (CHAOS)</span>
+                    <span class="wise-unit">CHAOS (混沌石)</span>
                 </div>
                 <div class="status-line">
                     <span class="trend {trend_class}">{trend_val:+.1f}%</span>
@@ -122,43 +129,39 @@ def build_pro_site():
         </div>
         """
         if i == 4:
-            rows_html += '<div style="background:#f1f5f9;border:1px dashed #cbd5e1;color:#94a3b8;text-align:center;padding:15px;font-size:11px;border-radius:8px;margin:15px 0;">【列表中间原生广告位】</div>'
+            rows_html += '<div style="background:#f1f5f9;border:1px dashed #cbd5e1;color:#94a3b8;text-align:center;padding:15px;font-size:11px;border-radius:8px;margin:15px 0;">[ Sponsored / Community Ads ]</div>'
 
-    update_time = datetime.now().strftime("%Y-%m-%d %H:%M")
-    insight_content = generate_market_insight(divine_price, mirror_price)
-
-    # ---------------- 3. HTML 模板 (含置顶逻辑) ----------------
+    # ---------------- 3. HTML 模板 ----------------
     full_html = f"""
     <!DOCTYPE html>
-    <html lang="zh-CN">
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>PoE 2 汇率看板 PRO</title>
+        <title>PoE 2 Exchange Rate Dashboard</title>
         <style>
             :root {{ --green: #25d970; --red: #ff4d4d; --navy: #163300; --bg: #f8fafc; --border: #e2e8f0; }}
-            body {{ background: var(--bg); color: #2e3333; font-family: -apple-system, sans-serif; margin: 0; padding-bottom: 50px; -webkit-overflow-scrolling: touch; }}
+            body {{ background: var(--bg); color: #2e3333; font-family: -apple-system, sans-serif; margin: 0; padding-bottom: 50px; }}
             .nav {{ background: #fff; padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }}
             .logo {{ font-weight: 800; font-size: 18px; color: var(--navy); text-decoration: none; }}
             .container {{ max-width: 550px; margin: auto; padding: 0 15px; }}
-            .calc-card {{ background: var(--navy); color: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }}
+            .calc-card {{ background: var(--navy); color: white; border-radius: 16px; padding: 20px; margin: 15px 0; }}
             .calc-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }}
             input {{ background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; color: white; width: 85%; font-size: 16px; outline: none; }}
-            .main-card {{ background: white; border-radius: 16px; padding: 5px 20px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }}
+            .main-card {{ background: white; border-radius: 16px; padding: 5px 20px; border: 1px solid var(--border); }}
             .wise-row {{ display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }}
             .wise-col {{ display: flex; align-items: center; gap: 12px; }}
             .align-right {{ flex-direction: column; align-items: flex-end; gap: 4px; }}
             .wise-icon {{ width: 32px; height: 32px; object-fit: contain; }}
             .wise-name {{ font-weight: 700; font-size: 15px; color: var(--navy); }}
-            .price-line {{ display: flex; align-items: baseline; gap: 6px; }}
             .wise-value {{ font-size: 19px; font-weight: 800; color: var(--navy); }}
             .wise-unit {{ font-size: 10px; color: #5d7079; font-weight: 700; text-transform: uppercase; }}
-            .status-line {{ display: flex; align-items: center; gap: 8px; }}
             .trend {{ font-size: 11px; font-weight: bold; }}
             .trend-up {{ color: var(--green); }}
             .trend-down {{ color: var(--red); }}
             .wise-label {{ font-size: 10px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #64748b; font-weight: 700; }}
             .seo-box {{ background: #fff; border-radius: 12px; border: 1px solid var(--border); padding: 15px; margin-top: 40px; opacity: 0.7; }}
+            .footer {{ text-align: center; font-size: 10px; color: #94a3b8; margin-top: 30px; }}
         </style>
     </head>
     <body id="top">
@@ -168,26 +171,37 @@ def build_pro_site():
         </div>
 
         <div class="container">
-            <div style="background:#f1f5f9;border:1px dashed #cbd5e1;color:#94a3b8;text-align:center;padding:15px;font-size:11px;border-radius:8px;margin:15px 0;">【顶部自适应广告位】</div>
+            <div style="background:#f1f5f9;border:1px dashed #cbd5e1;color:#94a3b8;text-align:center;padding:15px;font-size:11px;border-radius:8px;margin:15px 0;">[ Top Banner Ad Placeholder ]</div>
 
             <div class="calc-card">
-                <h3 style="margin:0 0 15px 0; font-size:16px;">资产一键清仓</h3>
+                <h3 style="margin:0 0 15px 0; font-size:16px;">Currency Calculator <span style="font-weight:400; font-size:12px; opacity:0.7;">(资产清仓)</span></h3>
                 <div class="calc-grid">
-                    <div><label style="font-size:10px;opacity:0.6;display:block;margin-bottom:5px;">混沌石持仓</label><input type="number" id="cIn" oninput="calc()" placeholder="0"></div>
-                    <div><label style="font-size:10px;opacity:0.6;display:block;margin-bottom:5px;">神圣石持仓</label><input type="number" id="dIn" oninput="calc()" placeholder="0"></div>
+                    <div>
+                        <label style="font-size:10px;opacity:0.6;display:block;margin-bottom:5px;">Chaos Orb <span style="font-size:9px;">(混沌石)</span></label>
+                        <input type="number" id="cIn" oninput="calc()" placeholder="0">
+                    </div>
+                    <div>
+                        <label style="font-size:10px;opacity:0.6;display:block;margin-bottom:5px;">Divine Orb <span style="font-size:9px;">(神圣石)</span></label>
+                        <input type="number" id="dIn" oninput="calc()" placeholder="0">
+                    </div>
                 </div>
                 <div id="res" style="text-align:center; font-weight:800; font-size:24px; margin-top:20px; color:var(--green)">0.00 DIVINE</div>
             </div>
 
             <div class="main-card">
-                <div style="padding: 15px 0; font-size: 11px; color: #5d7079; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">实时行情看板 <span style="float:right">更新: {update_time}</span></div>
+                <div style="padding: 15px 0; font-size: 10px; color: #5d7079; font-weight: 700; text-transform: uppercase;">
+                    {board_header}
+                </div>
                 {rows_html}
             </div>
 
             <div class="seo-box">
-                <h4 style="margin:0 0 10px; font-size:14px; color:var(--navy);">Market Analysis (SEO)</h4>
+                <h4 style="margin:0 0 10px; font-size:14px; color:var(--navy);">Market Insight</h4>
                 <div style="font-size:13px; color:#5d7079; line-height:1.6;">{insight_content}</div>
-                <div style="background:#f1f5f9;border:1px dashed #cbd5e1;color:#94a3b8;text-align:center;padding:15px;font-size:11px;border-radius:8px;margin-top:20px;">【底部内容匹配广告位】</div>
+            </div>
+            
+            <div class="footer">
+                &copy; 2026 POE2WISE. Data provided by poe.ninja. Not affiliated with Grinding Gear Games.
             </div>
         </div>
 
@@ -198,8 +212,6 @@ def build_pro_site():
                 const d = parseFloat(document.getElementById('dIn').value)||0;
                 document.getElementById('res').innerText = (d + (c/DIV)).toFixed(2) + " DIVINE";
             }}
-
-            // 核心修复：强制置顶逻辑，防止手机端加载时滚到底部
             window.scrollTo(0, 0);
             document.addEventListener('DOMContentLoaded', () => {{
                 setTimeout(() => window.scrollTo(0, 0), 50);
