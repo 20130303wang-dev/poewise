@@ -11,49 +11,31 @@ DATA_URL = f"https://poe.ninja/api/data/currencyoverview?league={LEAGUE}&type=Cu
 ICON_DIR = "icons" 
 
 NAME_MAP = {
-    "Mirror of Kalandra": "卡兰德的魔镜",
-    "Mirror Shard": "魔镜碎片",
-    "Hinekora's Lock": "卡兰德之锁",
-    "Divine Orb": "神圣石",
-    "Exalted Orb": "崇高石",
-    "Ancient Orb": "远古宝珠",
-    "Fracturing Orb": "分裂宝珠",
-    "Fracturing Shard": "分裂碎片",
-    "Chaos Orb": "混沌石",
-    "Vaal Orb": "瓦尔宝珠",
-    "Orb of Annulment": "剥离宝珠",
-    "Orb of Regret": "后缀重铸石",
-    "Orb of Unmaking": "洗点水",
-    "Orb of Scouring": "重铸石",
-    "Orb of Alchemy": "点金石",
-    "Orb of Fusing": "连接石",
-    "Orb of Alteration": "改造石",
-    "Chromatic Orb": "幻色石",
-    "Enkindling Orb": "点燃宝珠",
-    "Instilling Orb": "滴注宝珠",
-    "Gemcutter's Prism": "宝石匠的棱镜",
-    "Glassblower's Bauble": "玻璃弹珠",
-    "Cartographer's Chisel": "制图钉",
-    "Sacred Orb": "神圣宝珠",
-    "Reflecting Mist": "反射迷雾",
-    "Eldritch Chaos Orb": "古灵混沌石",
-    "Eldritch Exalted Orb": "古灵崇高石",
-    "Orb of Conflict": "冲突宝珠",
-    "Awakener's Orb": "觉醒者宝珠",
-    "Orb of Remembrance": "追忆宝珠",
-    "Artificer's Orb": "工匠宝珠",
-    "Lesser Jeweller's Orb": "次级工匠宝珠",
+    "Mirror of Kalandra": "卡兰德的魔镜", "Mirror Shard": "魔镜碎片",
+    "Hinekora's Lock": "卡兰德之锁", "Divine Orb": "神圣石",
+    "Exalted Orb": "崇高石", "Ancient Orb": "远古宝珠",
+    "Fracturing Orb": "分裂宝珠", "Fracturing Shard": "分裂碎片",
+    "Chaos Orb": "混沌石", "Vaal Orb": "瓦尔宝珠",
+    "Orb of Annulment": "剥离宝珠", "Orb of Regret": "后缀重铸石",
+    "Orb of Unmaking": "洗点水", "Orb of Scouring": "重铸石",
+    "Orb of Alchemy": "点金石", "Orb of Fusing": "连接石",
+    "Orb of Alteration": "改造石", "Chromatic Orb": "幻色石",
+    "Enkindling Orb": "点燃宝珠", "Instilling Orb": "滴注宝珠",
+    "Gemcutter's Prism": "宝石匠的棱镜", "Glassblower's Bauble": "玻璃弹珠",
+    "Cartographer's Chisel": "制图钉", "Sacred Orb": "神圣宝珠",
+    "Reflecting Mist": "反射迷雾", "Eldritch Chaos Orb": "古灵混沌石",
+    "Eldritch Exalted Orb": "古灵崇高石", "Orb of Conflict": "冲突宝珠",
+    "Awakener's Orb": "觉醒者宝珠", "Orb of Remembrance": "追忆宝珠",
+    "Artificer's Orb": "工匠宝珠", "Lesser Jeweller's Orb": "次级工匠宝珠",
 }
 
 # ================= 2. 自动化逻辑函数 =================
 
 def ensure_icon(en_name, remote_url):
-    if not os.path.exists(ICON_DIR):
-        os.makedirs(ICON_DIR)
+    if not os.path.exists(ICON_DIR): os.makedirs(ICON_DIR)
     safe_name = en_name.replace(" ", "_").replace("'", "").replace(":", "").replace('"', "")
     local_path = f"{ICON_DIR}/{safe_name}.png"
-    if os.path.exists(local_path):
-        return local_path
+    if os.path.exists(local_path): return local_path
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         r = requests.get(remote_url, headers=headers, timeout=10)
@@ -66,12 +48,11 @@ def ensure_icon(en_name, remote_url):
     return "https://web.poecdn.com/gen/image/CurrencyDuplicate.png"
 
 def generate_market_insight(div_price, mirror_price):
-    openings = ["Current market telemetry indicates", "Analysis of PoE 2 trade patterns suggests", "The latest liquidity assessment shows"]
+    openings = ["Current market telemetry indicates", "Analysis of PoE 2 trade patterns suggests", "Latest liquidity assessment shows"]
     sentiment = f"Divine Orbs are maintaining stability at {div_price} Chaos,"
     details = f"while Mirror of Kalandra continues to be the dominant high-end asset at {mirror_price:,.0f} Chaos."
     advice = random.choice(["Investors should monitor volatility.", "Holding assets might be viable.", "Market liquidity remains healthy."])
-    paragraph = f"{random.choice(openings)} {sentiment} {details} {advice}"
-    return f"{paragraph}<br><br><strong>Keywords:</strong> Path of Exile 2 Economy, PoE 2 Currency Exchange, Divine to Chaos Rate."
+    return f"{random.choice(openings)} {sentiment} {details} {advice}<br><br><strong>Keywords:</strong> Path of Exile 2 Economy, PoE 2 Currency Exchange, Divine to Chaos Rate."
 
 def build_pro_site():
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -79,14 +60,12 @@ def build_pro_site():
         r = requests.get(DATA_URL, headers=headers, timeout=15)
         data = r.json()
     except Exception as e:
-        print(f"Error fetching data: {e}")
-        return
+        print(f"Error: {e}"); return
 
     lines = data.get('lines', [])
     divine_price = next((item['chaosEquivalent'] for item in lines if item['currencyTypeName'] == 'Divine Orb'), 1)
     mirror_price = next((item['chaosEquivalent'] for item in lines if item['currencyTypeName'] == 'Mirror of Kalandra'), 0)
 
-    # 先定义所有的变量，防止 NameError
     update_time = datetime.now().strftime("%Y-%m-%d %H:%M")
     insight_content = generate_market_insight(divine_price, mirror_price)
     board_header = f'Live Market Board <span style="font-weight:400; font-size:10px; opacity:0.7;">(实时行情看板)</span> <span style="float:right">Last Sync <span style="font-weight:400;">(最后同步)</span>: {update_time}</span>'
@@ -100,45 +79,32 @@ def build_pro_site():
         price = item.get('chaosEquivalent', 0)
         icon_url = item.get('icon') or "https://web.poecdn.com/gen/image/CurrencyDuplicate.png"
         local_icon = ensure_icon(en_name, icon_url)
-
         trend_val = random.uniform(-1.2, 1.5) 
         trend_class = "trend-up" if trend_val > 0 else "trend-down"
-        advice = "BUY" if trend_val > 1.0 else "HOLD"
-
         if price < 0.1: continue
 
         rows_html += f"""
         <div class="wise-row">
             <div class="wise-col">
                 <div class="icon-wrapper"><img src="{local_icon}" class="wise-icon"></div>
-                <div class="wise-name">
-                    <span>{en_name}</span>
-                    <small style="display:block; font-size:11px; color:#5d7079; font-weight:400;">{zh_name}</small>
-                </div>
+                <div class="wise-name"><span>{en_name}</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">{zh_name}</small></div>
             </div>
             <div class="wise-col align-right">
-                <div class="price-line">
-                    <span class="wise-value">{price:,.1f}</span>
-                    <span class="wise-unit">CHAOS (混沌石)</span>
-                </div>
-                <div class="status-line">
-                    <span class="trend {trend_class}">{trend_val:+.1f}%</span>
-                    <span class="wise-label">{advice}</span>
-                </div>
+                <div class="price-line"><span class="wise-value">{price:,.1f}</span><span class="wise-unit">CHAOS (混沌石)</span></div>
+                <div class="status-line"><span class="trend {trend_class}">{trend_val:+.1f}%</span><span class="wise-label">{'BUY' if trend_val > 1.0 else 'HOLD'}</span></div>
             </div>
         </div>
         """
-        if i == 4:
-            rows_html += '<div style="background:#f1f5f9;border:1px dashed #cbd5e1;color:#94a3b8;text-align:center;padding:15px;font-size:11px;border-radius:8px;margin:15px 0;">[ Sponsored / Community Ads ]</div>'
+        if i == 4: rows_html += '<div style="background:#f1f5f9;border:1px dashed #cbd5e1;color:#94a3b8;text-align:center;padding:15px;font-size:11px;border-radius:8px;margin:15px 0;">[ Sponsored / Community Ads ]</div>'
 
-    # ---------------- 3. HTML 模板 ----------------
+    # ---------------- 3. HTML 模板 (含赚钱合规项) ----------------
     full_html = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>PoE 2 Exchange Rate Dashboard</title>
+        <title>PoE 2 Exchange Rate Dashboard | Professional Currency Tool</title>
         <style>
             :root {{ --green: #25d970; --red: #ff4d4d; --navy: #163300; --bg: #f8fafc; --border: #e2e8f0; }}
             body {{ background: var(--bg); color: #2e3333; font-family: -apple-system, sans-serif; margin: 0; padding-bottom: 50px; }}
@@ -161,50 +127,32 @@ def build_pro_site():
             .trend-down {{ color: var(--red); }}
             .wise-label {{ font-size: 10px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #64748b; font-weight: 700; }}
             .seo-box {{ background: #fff; border-radius: 12px; border: 1px solid var(--border); padding: 15px; margin-top: 40px; opacity: 0.7; }}
-            .footer {{ text-align: center; font-size: 10px; color: #94a3b8; margin-top: 30px; }}
+            .footer-links {{ text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid var(--border); }}
+            .footer-links a {{ color: #94a3b8; text-decoration: none; font-size: 11px; margin: 0 10px; font-weight: 600; }}
         </style>
     </head>
     <body id="top">
-        <div class="nav">
-            <a href="#" class="logo">POE2<span style="color:var(--green)">WISE</span></a>
-            <div style="font-size:11px; font-weight:700; color:var(--green)">● MARKET LIVE</div>
-        </div>
-
+        <div class="nav"><a href="#" class="logo">POE2<span style="color:var(--green)">WISE</span></a> <div style="font-size:11px;font-weight:700;color:var(--green)">● MARKET LIVE</div></div>
         <div class="container">
             <div style="background:#f1f5f9;border:1px dashed #cbd5e1;color:#94a3b8;text-align:center;padding:15px;font-size:11px;border-radius:8px;margin:15px 0;">[ Top Banner Ad Placeholder ]</div>
-
             <div class="calc-card">
                 <h3 style="margin:0 0 15px 0; font-size:16px;">Currency Calculator <span style="font-weight:400; font-size:12px; opacity:0.7;">(资产清仓)</span></h3>
                 <div class="calc-grid">
-                    <div>
-                        <label style="font-size:10px;opacity:0.6;display:block;margin-bottom:5px;">Chaos Orb <span style="font-size:9px;">(混沌石)</span></label>
-                        <input type="number" id="cIn" oninput="calc()" placeholder="0">
-                    </div>
-                    <div>
-                        <label style="font-size:10px;opacity:0.6;display:block;margin-bottom:5px;">Divine Orb <span style="font-size:9px;">(神圣石)</span></label>
-                        <input type="number" id="dIn" oninput="calc()" placeholder="0">
-                    </div>
+                    <div><label style="font-size:10px;opacity:0.6;display:block;margin-bottom:5px;">Chaos Orb (混沌石)</label><input type="number" id="cIn" oninput="calc()" placeholder="0"></div>
+                    <div><label style="font-size:10px;opacity:0.6;display:block;margin-bottom:5px;">Divine Orb (神圣石)</label><input type="number" id="dIn" oninput="calc()" placeholder="0"></div>
                 </div>
-                <div id="res" style="text-align:center; font-weight:800; font-size:24px; margin-top:20px; color:var(--green)">0.00 DIVINE</div>
+                <div id="res" style="text-align:center;font-weight:800;font-size:24px;margin-top:20px;color:var(--green)">0.00 DIVINE</div>
             </div>
-
-            <div class="main-card">
-                <div style="padding: 15px 0; font-size: 10px; color: #5d7079; font-weight: 700; text-transform: uppercase;">
-                    {board_header}
-                </div>
-                {rows_html}
-            </div>
-
-            <div class="seo-box">
-                <h4 style="margin:0 0 10px; font-size:14px; color:var(--navy);">Market Insight</h4>
-                <div style="font-size:13px; color:#5d7079; line-height:1.6;">{insight_content}</div>
-            </div>
+            <div class="main-card"><div style="padding:15px 0;font-size:10px;color:#5d7079;font-weight:700;text-transform:uppercase;">{board_header}</div>{rows_html}</div>
+            <div class="seo-box"><h4 style="margin:0 0 10px;font-size:14px;color:var(--navy);">Market Insight</h4><div style="font-size:13px;color:#5d7079;line-height:1.6;">{insight_content}</div></div>
             
-            <div class="footer">
-                &copy; 2026 POE2WISE. Data provided by poe.ninja. Not affiliated with Grinding Gear Games.
-            </div>
+            <div class="footer-links">
+    <a href="privacy.html">Privacy Policy</a> | 
+    <a href="disclaimer.html">Disclaimer</a> | 
+    <a href="mailto:20130303wang@gmail.com">Contact</a>
+    <p style="font-size:10px;color:#cbd5e1;margin-top:15px;">&copy; 2026 POE2WISE. Not affiliated with GGG. Data for reference only.</p>
+</div>
         </div>
-
         <script>
             const DIV = {divine_price};
             function calc() {{
@@ -213,15 +161,10 @@ def build_pro_site():
                 document.getElementById('res').innerText = (d + (c/DIV)).toFixed(2) + " DIVINE";
             }}
             window.scrollTo(0, 0);
-            document.addEventListener('DOMContentLoaded', () => {{
-                setTimeout(() => window.scrollTo(0, 0), 50);
-            }});
         </script>
     </body>
     </html>
     """
-    with open("index.html", "w", encoding="utf-8") as f:
-        f.write(full_html)
+    with open("index.html", "w", encoding="utf-8") as f: f.write(full_html)
 
-if __name__ == "__main__":
-    build_pro_site()
+if __name__ == "__main__": build_pro_site()
