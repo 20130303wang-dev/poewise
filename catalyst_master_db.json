@@ -1,0 +1,107 @@
+[
+    {
+        "en": "Ancestral Cry",
+        "zh": "先祖战吼",
+        "role": "Warcry / 战吼",
+        "wp": "Two-Handed / 双手武器",
+        "desc": "嘲讽敌人，召唤先祖幻影执行接下来的攻击。极大提升打击范围。",
+        "stats": [
+            82,
+            95,
+            40,
+            88,
+            75
+        ],
+        "syn": "Earthshatter / 地底裂痕"
+    },
+    {
+        "en": "Earthshatter",
+        "zh": "地底裂痕",
+        "role": "Slam / 打击",
+        "wp": "Two-Handed / 双手武器",
+        "desc": "猛击地面产生裂隙，可被战吼引爆造成巨量碎片AOE伤害。",
+        "stats": [
+            96,
+            90,
+            30,
+            95,
+            50
+        ],
+        "syn": "Ancestral Cry / 先祖战吼"
+    },
+    {
+        "en": "Boneshatter",
+        "zh": "碎骨",
+        "role": "Strike / 打击",
+        "wp": "Mace / Axe / 锤斧",
+        "desc": "沉重打击。根据创伤层数造成额外伤害。清图爽快，但要注意反伤。",
+        "stats": [
+            94,
+            72,
+            50,
+            85,
+            65
+        ],
+        "syn": "Ancestral Cry / 先祖战吼"
+    },
+    {
+        "en": "Frost Nova",
+        "zh": "冰霜新星",
+        "role": "Cold / 冰霜",
+        "wp": "Staff / Wand",
+        "desc": "产生寒冰脉冲，瞬间冻结周围敌人。施加 Frozen (冻结) 状态。",
+        "stats": [
+            70,
+            96,
+            35,
+            82,
+            85
+        ],
+        "syn": "Comet / 彗星"
+    },
+    {
+        "en": "Comet",
+        "zh": "彗星",
+        "role": "Cold / 冰霜",
+        "wp": "Staff",
+        "desc": "召唤冰陨石。对冻结目标造成双倍伤害并引爆。",
+        "stats": [
+            98,
+            88,
+            20,
+            99,
+            45
+        ],
+        "syn": "Frost Nova / 冰霜新星"
+    },
+    {
+        "en": "Shield Charge",
+        "zh": "重盾冲刺",
+        "role": "Movement / 位移",
+        "wp": "Shield / 盾牌",
+        "desc": "持盾高速冲锋。击中目标时造成眩晕，基于移动距离增加伤害。",
+        "stats": [
+            65,
+            45,
+            98,
+            75,
+            92
+        ],
+        "syn": "Shield Crush / 重盾粉碎"
+    },
+    {
+        "en": "Whirling Slash",
+        "zh": "旋风斩",
+        "role": "AoE / 范围",
+        "wp": "Two-Handed Sword",
+        "desc": "快速旋转攻击。由于技能范围随攻击速度提升，视觉效果极佳。",
+        "stats": [
+            88,
+            85,
+            65,
+            90,
+            82
+        ],
+        "syn": "Ancestral Cry / 先祖战吼"
+    }
+]
