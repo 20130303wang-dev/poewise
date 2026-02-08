@@ -1,925 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PoeWise - 实时汇率与技能实验室</title>
+    <style>
+        :root { 
+            --wise-green: #25d970; 
+            --bg: #ffffff; 
+            --text-main: #111827; 
+            --text-sub: #6b7280; 
+            --border: #f1f1f1;
+        }
+        
+        body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); margin: 0; color: var(--text-main); -webkit-font-smoothing: antialiased; }
+        
+        /* 1. 顶部 Tab 导航：找回高级感 */
+        .tab-nav { display: flex; background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
+        .tab-btn { flex: 1; text-align: center; padding: 18px 0; font-size: 15px; font-weight: 700; color: var(--text-sub); border: none; background: none; cursor: pointer; transition: 0.3s; position: relative; }
+        .tab-btn.active { color: var(--wise-green); }
+        .tab-btn.active::after { content: ""; position: absolute; bottom: 0; left: 20%; width: 60%; height: 3px; background: var(--wise-green); border-radius: 2px; }
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>PoE 2 Exchange Rate Dashboard | Professional Currency Tool</title>
-        <style>
-            :root { --green: #25d970; --red: #ff4d4d; --navy: #163300; --bg: #f8fafc; --border: #e2e8f0; }
-            body { background: var(--bg); color: #2e3333; font-family: -apple-system, sans-serif; margin: 0; padding-bottom: 50px; }
-            .nav { background: #fff; padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-            .logo { font-weight: 800; font-size: 18px; color: var(--navy); text-decoration: none; }
-            .container { max-width: 550px; margin: auto; padding: 0 15px; }
-            .calc-card { background: var(--navy); color: white; border-radius: 16px; padding: 20px; margin: 15px 0; }
-            .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-            input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; color: white; width: 85%; font-size: 16px; outline: none; }
-            .main-card { background: white; border-radius: 16px; padding: 5px 20px; border: 1px solid var(--border); }
-            .wise-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); }
-            .wise-col { display: flex; align-items: center; gap: 12px; }
-            .align-right { flex-direction: column; align-items: flex-end; gap: 4px; }
-            .wise-icon { width: 32px; height: 32px; object-fit: contain; }
-            .wise-name { font-weight: 700; font-size: 15px; color: var(--navy); }
-            .wise-value { font-size: 19px; font-weight: 800; color: var(--navy); }
-            .wise-unit { font-size: 10px; color: #5d7079; font-weight: 700; text-transform: uppercase; }
-            .trend { font-size: 11px; font-weight: bold; }
-            .trend-up { color: var(--green); }
-            .trend-down { color: var(--red); }
-            .wise-label { font-size: 10px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #64748b; font-weight: 700; }
-            .seo-box { background: #fff; border-radius: 12px; border: 1px solid var(--border); padding: 15px; margin-top: 40px; opacity: 0.7; }
-            .footer-links { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid var(--border); }
-            .footer-links a { color: #94a3b8; text-decoration: none; font-size: 11px; margin: 0 10px; font-weight: 600; }
-        </style>
-    </head>
-    <body id="top">
-        <div class="nav"><a href="#" class="logo">POE2<span style="color:var(--green)">WISE</span></a> <div style="font-size:11px;font-weight:700;color:var(--green)">● MARKET LIVE</div></div>
-        <div class="container">
-            <div style="background:#f1f5f9;border:1px dashed #cbd5e1;color:#94a3b8;text-align:center;padding:15px;font-size:11px;border-radius:8px;margin:15px 0;">[ Top Banner Ad Placeholder ]</div>
-            <div class="calc-card">
-                <h3 style="margin:0 0 15px 0; font-size:16px;">Currency Calculator <span style="font-weight:400; font-size:12px; opacity:0.7;">(资产清仓)</span></h3>
-                <div class="calc-grid">
-                    <div><label style="font-size:10px;opacity:0.6;display:block;margin-bottom:5px;">Chaos Orb (混沌石)</label><input type="number" id="cIn" oninput="calc()" placeholder="0"></div>
-                    <div><label style="font-size:10px;opacity:0.6;display:block;margin-bottom:5px;">Divine Orb (神圣石)</label><input type="number" id="dIn" oninput="calc()" placeholder="0"></div>
-                </div>
-                <div id="res" style="text-align:center;font-weight:800;font-size:24px;margin-top:20px;color:var(--green)">0.00 DIVINE</div>
-            </div>
-            <div class="main-card"><div style="padding:15px 0;font-size:10px;color:#5d7079;font-weight:700;text-transform:uppercase;">Live Market Board <span style="font-weight:400; font-size:10px; opacity:0.7;">(实时行情看板)</span> <span style="float:right">Last Sync <span style="font-weight:400;">(最后同步)</span>: 2026-02-08 03:33</span></div>
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Mirror_of_Kalandra.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Mirror of Kalandra</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">卡兰德的魔镜</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">553,118.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.3%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Mirror_Shard.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Mirror Shard</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">魔镜碎片</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">13,727.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.9%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Reflecting_Mist.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Reflecting Mist</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">反射迷雾</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">8,756.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.8%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Fracturing_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Fracturing Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">分裂宝珠</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">3,682.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-1.1%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Orb_of_Remembrance.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Orb of Remembrance</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">追忆宝珠</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">3,184.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.7%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        <div style="background:#f1f5f9;border:1px dashed #cbd5e1;color:#94a3b8;text-align:center;padding:15px;font-size:11px;border-radius:8px;margin:15px 0;">[ Sponsored / Community Ads ]</div>
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Tailoring_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Tailoring Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Tailoring Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">1,966.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.7%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Tempering_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Tempering Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Tempering Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">1,393.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.7%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Exceptional_Eldritch_Ember.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Exceptional Eldritch Ember</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Exceptional Eldritch Ember</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">1,194.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.7%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Orb_of_Conflict.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Orb of Conflict</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">冲突宝珠</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">971.1</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.2%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Sacred_Crystallised_Lifeforce.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Sacred Crystallised Lifeforce</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Sacred Crystallised Lifeforce</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">597.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.8%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Awakeners_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Awakener's Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">觉醒者宝珠</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">541.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.6%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Divine_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Divine Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">神圣石</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">354.2</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.7%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Mavens_Chisel_of_Avarice.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Maven's Chisel of Avarice</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Maven's Chisel of Avarice</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">177.4</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.5%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Mavens_Chisel_of_Scarabs.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Maven's Chisel of Scarabs</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Maven's Chisel of Scarabs</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">169.6</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.3%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Blessing_of_Uul-Netol.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Blessing of Uul-Netol</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Blessing of Uul-Netol</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">132.7</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.3%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Sacred_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Sacred Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">神圣宝珠</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">132.7</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.7%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Tainted_Chaos_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Tainted Chaos Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Tainted Chaos Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">132.7</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.6%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Eldritch_Orb_of_Annulment.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Eldritch Orb of Annulment</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Eldritch Orb of Annulment</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">124.7</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-1.2%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Eldritch_Chaos_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Eldritch Chaos Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">古灵混沌石</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">95.8</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.1%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Exalted_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Exalted Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">崇高石</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">69.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.3%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Orb_of_Intention.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Orb of Intention</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Orb of Intention</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">67.9</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.2%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Mavens_Chisel_of_Divination.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Maven's Chisel of Divination</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Maven's Chisel of Divination</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">66.3</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.1%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Tainted_Catalyst.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Tainted Catalyst</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Tainted Catalyst</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">57.7</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.1%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Tainted_Mythic_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Tainted Mythic Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Tainted Mythic Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">56.9</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.1%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Eldritch_Exalted_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Eldritch Exalted Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">古灵崇高石</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">56.9</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.5%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Veiled_Exalted_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Veiled Exalted Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Veiled Exalted Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">44.2</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.1%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Tainted_Orb_of_Fusing.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Tainted Orb of Fusing</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Tainted Orb of Fusing</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">44.2</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-1.1%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Mavens_Chisel_of_Proliferation.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Maven's Chisel of Proliferation</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Maven's Chisel of Proliferation</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">34.5</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.2%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Grand_Eldritch_Ember.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Grand Eldritch Ember</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Grand Eldritch Ember</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">26.5</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.1%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Prismatic_Catalyst.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Prismatic Catalyst</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Prismatic Catalyst</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">24.8</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.2%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Mavens_Chisel_of_Procurement.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Maven's Chisel of Procurement</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Maven's Chisel of Procurement</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">23.4</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.5%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Unstable_Catalyst.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Unstable Catalyst</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Unstable Catalyst</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">22.9</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.1%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Orb_of_Annulment.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Orb of Annulment</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">剥离宝珠</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">20.9</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.4%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Ritual_Vessel.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Ritual Vessel</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Ritual Vessel</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">18.7</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.4%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Tainted_Chromatic_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Tainted Chromatic Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Tainted Chromatic Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">15.5</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.8%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Ancient_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Ancient Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">远古宝珠</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">15.3</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.0%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Fertile_Catalyst.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Fertile Catalyst</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Fertile Catalyst</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">13.4</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.8%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Grand_Eldritch_Ichor.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Grand Eldritch Ichor</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Grand Eldritch Ichor</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">11.4</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-1.0%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Influenced_Scouting_Report.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Influenced Scouting Report</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Influenced Scouting Report</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">10.1</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.2%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Singular_Scouting_Report.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Singular Scouting Report</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Singular Scouting Report</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">8.5</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.4%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Vaal_Scouting_Report.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Vaal Scouting Report</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Vaal Scouting Report</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">8.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.5%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Stacked_Deck.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Stacked Deck</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Stacked Deck</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">6.3</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.3%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Accelerating_Catalyst.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Accelerating Catalyst</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Accelerating Catalyst</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">6.2</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.3%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Explorers_Scouting_Report.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Explorer's Scouting Report</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Explorer's Scouting Report</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">6.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.6%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Harbingers_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Harbinger's Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Harbinger's Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">5.7</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-1.0%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Tempering_Catalyst.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Tempering Catalyst</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Tempering Catalyst</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">5.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.9%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Tainted_Armourers_Scrap.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Tainted Armourer's Scrap</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Tainted Armourer's Scrap</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">4.5</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.0%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Veiled_Scarab.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Veiled Scarab</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Veiled Scarab</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">4.5</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.4%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Gemcutters_Prism.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Gemcutter's Prism</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">宝石匠的棱镜</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">3.6</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.4%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Turbulent_Catalyst.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Turbulent Catalyst</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Turbulent Catalyst</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">3.2</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.6%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Noxious_Catalyst.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Noxious Catalyst</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Noxious Catalyst</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">2.6</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.5%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Greater_Eldritch_Ember.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Greater Eldritch Ember</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Greater Eldritch Ember</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">2.3</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.4%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Tainted_Jewellers_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Tainted Jeweller's Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Tainted Jeweller's Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">2.1</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.1%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Intrinsic_Catalyst.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Intrinsic Catalyst</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Intrinsic Catalyst</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">2.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.0%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Enkindling_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Enkindling Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">点燃宝珠</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">1.8</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.3%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Imbued_Catalyst.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Imbued Catalyst</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Imbued Catalyst</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">1.6</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.5%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Tainted_Blacksmiths_Whetstone.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Tainted Blacksmith's Whetstone</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Tainted Blacksmith's Whetstone</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">1.6</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.2%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Vaal_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Vaal Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">瓦尔宝珠</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">1.3</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.9%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Greater_Eldritch_Ichor.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Greater Eldritch Ichor</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Greater Eldritch Ichor</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">1.3</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.1%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Orb_of_Regret.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Orb of Regret</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">后缀重铸石</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">1.2</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.4%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Abrasive_Catalyst.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Abrasive Catalyst</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Abrasive Catalyst</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">1.0</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.4%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Regal_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Regal Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Regal Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.9</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.1%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Orb_of_Scouring.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Orb of Scouring</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">重铸石</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.9</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.7%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Engineers_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Engineer's Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Engineer's Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.7</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.7%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Orb_of_Unmaking.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Orb of Unmaking</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">洗点水</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.7</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.6%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Cartographers_Chisel.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Cartographer's Chisel</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">制图钉</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.6</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.3%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Glassblowers_Bauble.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Glassblower's Bauble</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">玻璃弹珠</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.6</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.1%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Orb_of_Fusing.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Orb of Fusing</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">连接石</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.3</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.2%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Blessed_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Blessed Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Blessed Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.3</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.6%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Orb_of_Horizons.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Orb of Horizons</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Orb of Horizons</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.3</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.6%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Lesser_Eldritch_Ichor.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Lesser Eldritch Ichor</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Lesser Eldritch Ichor</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.3</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-1.2%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Lesser_Eldritch_Ember.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Lesser Eldritch Ember</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Lesser Eldritch Ember</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.3</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.5%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Chromatic_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Chromatic Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">幻色石</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.2</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.3%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Orb_of_Alteration.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Orb of Alteration</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">改造石</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.2</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.5%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Vivid_Crystallised_Lifeforce.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Vivid Crystallised Lifeforce</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Vivid Crystallised Lifeforce</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.2</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-1.1%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Orb_of_Chance.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Orb of Chance</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Orb of Chance</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.2</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+1.3%</span><span class="wise-label">BUY</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Instilling_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Instilling Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">滴注宝珠</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.2</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-up">+0.3%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        
-        <div class="wise-row">
-            <div class="wise-col">
-                <div class="icon-wrapper"><img src="icons/Jewellers_Orb.png" class="wise-icon"></div>
-                <div class="wise-name"><span>Jeweller's Orb</span><small style="display:block;font-size:11px;color:#5d7079;font-weight:400;">Jeweller's Orb</small></div>
-            </div>
-            <div class="wise-col align-right">
-                <div class="price-line"><span class="wise-value">0.1</span><span class="wise-unit">CHAOS (混沌石)</span></div>
-                <div class="status-line"><span class="trend trend-down">-0.8%</span><span class="wise-label">HOLD</span></div>
-            </div>
-        </div>
-        </div>
-            <div class="seo-box"><h4 style="margin:0 0 10px;font-size:14px;color:var(--navy);">Market Insight</h4><div style="font-size:13px;color:#5d7079;line-height:1.6;">Analysis of PoE 2 trade patterns suggests Divine Orbs are maintaining stability at 354.2 Chaos, while Mirror of Kalandra continues to be the dominant high-end asset at 553,118 Chaos. Investors should monitor volatility.<br><br><strong>Keywords:</strong> Path of Exile 2 Economy, PoE 2 Currency Exchange, Divine to Chaos Rate.</div></div>
-            
-            <div class="footer-links">
-    <a href="privacy.html">Privacy Policy</a> | 
-    <a href="disclaimer.html">Disclaimer</a> | 
-    <a href="mailto:20130303wang@gmail.com">Contact</a>
-    <p style="font-size:10px;color:#cbd5e1;margin-top:15px;">&copy; 2026 POE2WISE. Not affiliated with GGG. Data for reference only.</p>
+        /* 2. Header：保持原有的大标题风格 */
+        .header { padding: 40px 20px 10px; text-align: left; max-width: 480px; margin: 0 auto; }
+        .header h1 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+        .header h1 span { color: var(--wise-green); }
+        .header p { color: var(--text-sub); margin-top: 8px; font-size: 15px; }
+
+        .container { max-width: 480px; margin: 0 auto; padding: 0 20px; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: slideUp 0.4s ease-out; }
+
+        /* 3. 技能连招：颜值模块 */
+        .search-wrap { margin: 25px 0; }
+        .search-input { width: 100%; padding: 18px; background: #f9fafb; border: 1px solid var(--border); border-radius: 14px; font-size: 17px; outline: none; box-sizing: border-box; }
+        .search-input:focus { border-color: var(--wise-green); background: #fff; box-shadow: 0 0 0 4px rgba(37, 217, 112, 0.1); }
+
+        .gem-card { background: #fff; border: 1px solid var(--border); border-radius: 24px; padding: 26px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+        .badge { font-size: 11px; font-weight: 800; color: var(--wise-green); background: rgba(37, 217, 112, 0.1); padding: 5px 12px; border-radius: 8px; margin-bottom: 15px; display: inline-block; }
+        .en-title { font-size: 24px; font-weight: 900; color: var(--text-main); margin: 0; }
+        .zh-title { font-size: 17px; color: var(--text-sub); margin: 4px 0 15px; }
+
+        .radar-box-large { background: #f9fafb; border-radius: 20px; padding: 30px 0; margin: 20px 0; display: flex; flex-direction: column; align-items: center; }
+        .radar-canvas { width: 280px; height: 280px; }
+
+        .synergy-box { background: #f0fff4; border-radius: 16px; padding: 18px; border: 1px solid rgba(37, 217, 112, 0.2); }
+        .syn-label { font-size: 12px; color: var(--wise-green); font-weight: 800; margin-bottom: 6px; display: block; }
+
+        /* 4. 原有：免责声明与页脚 (直接对齐 indexa.html) */
+        .disclaimer-section { border-top: 1px solid var(--border); margin-top: 40px; padding: 30px 20px; background: #fcfcfc; }
+        .disclaimer-text { max-width: 480px; margin: 0 auto; font-size: 13px; color: var(--text-sub); line-height: 1.8; }
+        .footer { text-align: center; padding: 40px 20px; font-size: 13px; color: var(--text-sub); }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('rate', this)">实时汇率</button>
+    <button class="tab-btn" onclick="switchTab('gem', this)">技能连招</button>
+</nav>
+
+<div id="tab-rate" class="tab-content active">
+    <div class="header"><h1>PoeWise <span>Rate</span></h1><p>全球主流币种实时换算</p></div>
+    <div class="container">
+        <div style="background:#f9fafb; padding:25px; border-radius:20px; border:1px solid var(--border); margin-top:20px; text-align:center;">
+            <p style="color:var(--text-sub);">[ 汇率模块已连接 ]</p>
+        </div>
+    </div>
 </div>
+
+<div id="tab-gem" class="tab-content">
+    <div class="header"><h1>PoeWise <span>Catalyst</span></h1><p>全量宝石联动 · 性能分析</p></div>
+    <div class="container">
+        <div class="search-wrap">
+            <input type="text" id="gemSearch" class="search-input" placeholder="输入宝石名称 (如: 碎骨 / Boneshatter)" oninput="handleSearch()">
         </div>
-        <script>
-            const DIV = 354.2;
-            function calc() {
-                const c = parseFloat(document.getElementById('cIn').value)||0;
-                const d = parseFloat(document.getElementById('dIn').value)||0;
-                document.getElementById('res').innerText = (d + (c/DIV)).toFixed(2) + " DIVINE";
-            }
-            window.scrollTo(0, 0);
-        </script>
-    </body>
-    </html>
-    
+        <div id="gem-results"></div>
+    </div>
+</div>
+
+<div class="disclaimer-section">
+    <div class="disclaimer-text">
+        <strong>免责声明：</strong><br>
+        本工具提供的数据仅供参考。汇率数据来源于第三方 API，可能存在延迟；技能数据同步自社区文档，实际效果请以游戏内为准。开发者不承担因使用本工具造成的任何损失。
+    </div>
+</div>
+
+<div class="footer">&copy; 2026 PoeWise Terminal. All rights reserved.</div>
+
+<script>
+    function switchTab(type, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + type).classList.add('active');
+        if(type === 'gem') loadGemData();
+    }
+
+    let gemDatabase = [];
+    async function loadGemData() {
+        if(gemDatabase.length > 0) return;
+        try {
+            const res = await fetch('catalyst_master_db.json');
+            gemDatabase = await res.json();
+        } catch(e) { console.error("JSON 加载失败"); }
+    }
+
+    function handleSearch() {
+        const query = document.getElementById('gemSearch').value.toLowerCase();
+        const results = document.getElementById('gem-results');
+        results.innerHTML = '';
+        if(!query) return;
+
+        const matches = gemDatabase.filter(g => g.en.toLowerCase().includes(query) || g.zh.includes(query));
+        matches.forEach((gem, idx) => {
+            const canvasId = `radar-${idx}`;
+            results.innerHTML += `
+                <div class="gem-card">
+                    <span class="badge">${gem.role}</span>
+                    <p class="en-title">${gem.en}</p>
+                    <p class="zh-title">${gem.zh}</p>
+                    <p style="font-size:14px; color:var(--text-sub); border-top:1px solid var(--border); padding-top:15px; line-height:1.7;">${gem.desc}</p>
+                    <div class="radar-box-large">
+                        <canvas id="${canvasId}" width="360" height="360" style="width:280px;height:280px;"></canvas>
+                    </div>
+                    <div class="synergy-box">
+                        <span class="syn-label">⚡ 最佳连招建议 (BEST SYNERGY)</span>
+                        <div style="font-weight:700;">${gem.syn}</div>
+                    </div>
+                </div>`;
+            setTimeout(() => drawRadar(canvasId, gem.stats), 50);
+        });
+    }
+
+    function drawRadar(id, stats) {
+        const canvas = document.getElementById(id);
+        const ctx = canvas.getContext('2d'), cx = 180, cy = 180, r = 110;
+        const lbls = ["伤害 DMG", "范围 AoE", "机动 MOB", "特效 VIS", "手感 FEEL"];
+        ctx.clearRect(0,0,360,360); ctx.strokeStyle = '#e5e7eb';
+        for(let j=1; j<=3; j++){
+            ctx.beginPath(); let cr=(r/3)*j;
+            for(let i=0; i<5; i++){ let a=(Math.PI*2/5)*i-Math.PI/2; ctx.lineTo(cx+cr*Math.cos(a),cy+cr*Math.sin(a)); }
+            ctx.closePath(); ctx.stroke();
+        }
+        ctx.font="bold 14px sans-serif"; ctx.fillStyle="#6b7280"; ctx.textAlign="center";
+        lbls.forEach((l,i)=>{ let a=(Math.PI*2/5)*i-Math.PI/2; ctx.fillText(l,cx+(r+45)*Math.cos(a),cy+(r+20)*Math.sin(a)); });
+        ctx.fillStyle='rgba(37,217,112,0.25)'; ctx.strokeStyle='#25d970'; ctx.lineWidth=4;
+        ctx.beginPath();
+        stats.forEach((s,i)=>{ let a=(Math.PI*2/5)*i-Math.PI/2; ctx.lineTo(cx+(s/100)*r*Math.cos(a),cy+(s/100)*r*Math.sin(a)); });
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+</script>
+</body>
+</html>
